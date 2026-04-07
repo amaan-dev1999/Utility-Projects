@@ -202,9 +202,10 @@ export class PdfDocument {
             PdfDocument.normalizeText(line, mergedOptions),
         );
 
-        const actualLines = this.lines.map(line =>
-            PdfDocument.normalizeText(line, mergedOptions),
-        );
+        // Use already-normalized lines directly; re-normalizing would
+        // cause ignoreFields regexes to match across the entire single-line
+        // text (no newlines left), destroying content beyond the field label.
+        const actualLines = this.lines;
 
         if (unordered) {
             // Check if all expected lines exist (in any order)
@@ -216,18 +217,17 @@ export class PdfDocument {
                 }
             }
         } else {
-            // Check if lines appear in order
-            let lastIndex = -1;
+            // Check if lines appear in order within the full normalized text
+            const fullText = actualLines.join(' ');
+            let lastPos = -1;
             for (const expectedLine of normalizedExpected) {
-                const index = actualLines.findIndex(
-                    (actual, idx) => idx > lastIndex && actual.includes(expectedLine),
-                );
-                if (index === -1) {
+                const pos = fullText.indexOf(expectedLine, lastPos + 1);
+                if (pos === -1) {
                     throw new Error(
                         `PDF does not contain expected line in order: "${expectedLine}".`,
                     );
                 }
-                lastIndex = index;
+                lastPos = pos;
             }
         }
     }
