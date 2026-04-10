@@ -1,0 +1,96 @@
+@if (candidate) {
+<div class="report">
+  <div class="report-header">
+    <button class="btn btn-outline btn-sm" (click)="goBack()">← Dashboard</button>
+    <button class="btn btn-success btn-sm" (click)="downloadPdf()">📥 Download PDF</button>
+  </div>
+
+  <!-- Candidate Summary -->
+  <div class="summary-card">
+    <div class="summary-left">
+      <h1>{{ candidate.name }}</h1>
+      <div class="summary-meta">
+        <span>{{ candidate.experience }} years experience</span>
+        <span>{{ candidate.interviewDate | date:'dd MMM yyyy, hh:mm a' }}</span>
+        @if (candidate.interviewerName) {
+          <span>Interviewed by: {{ candidate.interviewerName }}</span>
+        }
+      </div>
+    </div>
+    <div class="summary-right">
+      <div class="score-circle" [ngClass]="recommendationClass">
+        <div class="score-value">{{ candidate.overallRating ?? candidate.score ?? 0 }}/5</div>
+        <div class="score-label">Performance</div>
+      </div>
+      <div class="recommendation" [ngClass]="recommendationClass">{{ recommendation }}</div>
+    </div>
+  </div>
+
+  <!-- Evaluation Ratings -->
+  @if (candidate.evaluation) {
+    <h2>Evaluation Ratings</h2>
+    <div class="eval-grid">
+      @for (c of evalCriteria; track c.key) {
+        <div class="eval-card">
+          <div class="eval-card-label">{{ c.label }}</div>
+          <div class="eval-card-stars">
+            @for (s of [1,2,3,4,5]; track s) {
+              <span class="report-star" [class.filled]="candidate.evaluation[c.key] !== null && s <= candidate.evaluation[c.key]!">★</span>
+            }
+          </div>
+          <div class="eval-card-value">{{ candidate.evaluation[c.key] ?? 0 }}/5</div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Candidate Feedback -->
+  @if (candidate.evaluationFeedback) {
+    <div class="overall-notes-section">
+      <h2>Candidate Feedback</h2>
+      <p>{{ candidate.evaluationFeedback }}</p>
+    </div>
+  }
+
+  <!-- Questions Asked -->
+  <h2>Questions Asked ({{ candidate.questions.length }})</h2>
+  <div class="category-grid">
+    @for (cat of categories; track cat) {
+      <div class="category-card">
+        <div class="cat-name">{{ cat }}</div>
+        <div class="cat-count">{{ getCategoryCount(cat) }} questions</div>
+      </div>
+    }
+  </div>
+
+  <div class="question-table">
+    <div class="table-header">
+      <span class="col-num">#</span>
+      <span class="col-cat">Category</span>
+      <span class="col-q">Question</span>
+      <span class="col-diff">Difficulty</span>
+    </div>
+    @for (q of candidate.questions; track q.id; let i = $index) {
+      <div class="table-row">
+        <span class="col-num">{{ i + 1 }}</span>
+        <span class="col-cat">{{ q.category }}</span>
+        <span class="col-q">{{ q.question }}</span>
+        <span class="col-diff" [class.diff-hard]="q.difficulty === 'Hard'">{{ q.difficulty }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Interviewer Notes -->
+  @if (candidate.overallNotes) {
+    <div class="overall-notes-section">
+      <h2>Interviewer Notes</h2>
+      <p>{{ candidate.overallNotes }}</p>
+    </div>
+  }
+
+  <div class="report-footer">
+    <button class="btn btn-success" (click)="downloadPdf()">📥 Download PDF Report</button>
+    <button class="btn btn-outline" (click)="goBack()">Back to Dashboard</button>
+  </div>
+</div>
+}

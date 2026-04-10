@@ -1,0 +1,44 @@
+@if (auth.isLoggedIn()) {
+<div class="app-shell">
+  <header class="app-header">
+    <div class="header-content">
+      <a routerLink="/dashboard" class="logo">
+        <svg class="logo-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#6366f1"/>
+              <stop offset="100%" style="stop-color:#8b5cf6"/>
+            </linearGradient>
+          </defs>
+          <rect width="40" height="40" rx="10" fill="url(#logoGrad)"/>
+          <path d="M12 10h16a2 2 0 012 2v16a2 2 0 01-2 2H12a2 2 0 01-2-2V12a2 2 0 012-2z" fill="none" stroke="#fff" stroke-width="1.5"/>
+          <path d="M14 17h12M14 21h8M14 25h10" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="28" cy="28" r="6" fill="#22c55e"/>
+          <path d="M25.5 28l1.5 1.5 3-3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <div class="logo-text">
+          <span class="logo-title">Interview Helper</span>
+          <span class="logo-sub">Walk-in Drive &middot; Java Full Stack</span>
+        </div>
+      </a>
+      <div class="header-right">
+        <a routerLink="/templates" class="header-nav-link">📝 Templates</a>
+        <a routerLink="/ats" class="header-nav-link">📄 ATS</a>
+        <span class="header-date">{{ today }}</span>
+        <span class="header-user">{{ userName }}</span>
+        <button class="btn-logout" (click)="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+  <main class="app-main">
+    <router-outlet />
+  </main>
+  <footer class="app-footer">
+    <div class="footer-content">
+      <span>&copy; 2026 Created by <strong>Amaan Khan</strong>. All rights reserved.</span>
+    </div>
+  </footer>
+</div>
+} @else {
+  <router-outlet />
+}

@@ -1,0 +1,159 @@
+<div class="template-builder">
+  @if (!isEditing) {
+    <!-- Template List -->
+    <div class="section-header">
+      <h2>My Question Templates</h2>
+      <div class="header-actions">
+        <button class="btn btn-primary" (click)="createNew()">+ New Template</button>
+        <button class="btn btn-outline" routerLink="/dashboard">← Dashboard</button>
+      </div>
+    </div>
+
+    @if (templates.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📝</div>
+        <h3>No templates yet</h3>
+        <p>Create your own question template with custom categories</p>
+      </div>
+    } @else {
+      <div class="template-list">
+        @for (t of templates; track t.id) {
+          <div class="template-card">
+            <div class="template-info">
+              <div class="template-name">{{ t.name }}</div>
+              <div class="template-meta">
+                <span class="badge badge-cat">{{ t.categories.length }} categories</span>
+                <span class="badge badge-q">{{ t.questions.length }} questions</span>
+                <span class="badge badge-date">{{ t.createdDate | date:'dd MMM yyyy' }}</span>
+              </div>
+              <div class="template-cats">
+                @for (cat of t.categories; track cat) {
+                  <span class="cat-chip">{{ cat }}</span>
+                }
+              </div>
+            </div>
+            <div class="template-actions">
+              <button class="btn btn-sm btn-primary" (click)="editTemplate(t)">Edit</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteTemplate(t.id)">🗑️</button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  } @else if (activeTemplate) {
+    <!-- Template Editor -->
+    <div class="editor-header">
+      <button class="btn btn-outline btn-sm" (click)="backToList()">← Back</button>
+      <h2>{{ activeTemplate.name || 'New Template' }}</h2>
+      <button class="btn btn-primary btn-sm" (click)="saveTemplate()">💾 Save Template</button>
+    </div>
+
+    <!-- Template Name -->
+    <div class="editor-section">
+      <label>Template Name</label>
+      <input type="text" [(ngModel)]="activeTemplate.name" placeholder="e.g. React Frontend, DevOps, Python Backend..." />
+    </div>
+
+    <!-- Categories -->
+    <div class="editor-section">
+      <label>Categories</label>
+      <div class="category-builder">
+        <div class="cat-input-row">
+          <input type="text" [(ngModel)]="newCategory" placeholder="Enter category name..."
+            (keyup.enter)="addCategory()" />
+          <button class="btn btn-sm btn-primary" (click)="addCategory()" [disabled]="!newCategory.trim()">+ Add</button>
+        </div>
+        <div class="cat-chips">
+          @for (cat of activeTemplate.categories; track cat) {
+            <div class="cat-chip-edit">
+              <span>{{ cat }}</span>
+              <span class="cat-count">({{ getQuestionsForCategory(cat).length }})</span>
+              <button class="chip-remove" (click)="removeCategory(cat)">✕</button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions by Category -->
+    @if (activeTemplate.categories.length > 0) {
+      <div class="editor-section">
+        <div class="questions-header">
+          <label>Questions ({{ activeTemplate.questions.length }} total)</label>
+          <button class="btn btn-sm btn-primary" (click)="openQuestionForm()">+ Add Question</button>
+        </div>
+
+        @if (showQuestionForm) {
+          <div class="question-form">
+            <h4>{{ editingQuestionId ? 'Edit Question' : 'Add Question' }}</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Category</label>
+                <select [(ngModel)]="qCategory">
+                  @for (cat of activeTemplate.categories; track cat) {
+                    <option [value]="cat">{{ cat }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Difficulty</label>
+                <select [(ngModel)]="qDifficulty">
+                  <option value="Medium">Medium</option>
+                  <option value="Hard">Hard</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group full">
+              <label>Question</label>
+              <textarea [(ngModel)]="qQuestion" placeholder="Type the interview question..." rows="2"></textarea>
+            </div>
+            <div class="form-group full">
+              <label>Expected Answer</label>
+              <textarea [(ngModel)]="qAnswer" placeholder="Type the expected answer..." rows="3"></textarea>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-sm btn-primary" (click)="saveQuestion()" [disabled]="!qQuestion.trim() || !qCategory">
+                {{ editingQuestionId ? 'Update' : 'Add' }}
+              </button>
+              <button class="btn btn-sm btn-outline" (click)="resetQuestionForm()">Cancel</button>
+            </div>
+          </div>
+        }
+
+        @for (cat of activeTemplate.categories; track cat) {
+          <div class="cat-section">
+            <div class="cat-section-header">
+              <span class="cat-section-name">{{ cat }}</span>
+              <button class="btn btn-xs btn-outline" (click)="openQuestionForm(cat)">+ Add</button>
+            </div>
+            @if (getQuestionsForCategory(cat).length === 0) {
+              <div class="no-questions">No questions yet. Click + Add to create one.</div>
+            } @else {
+              @for (q of getQuestionsForCategory(cat); track q.id; let i = $index) {
+                <div class="q-row">
+                  <div class="q-num">{{ i + 1 }}</div>
+                  <div class="q-content">
+                    <div class="q-text">{{ q.question }}</div>
+                    <div class="q-answer">{{ q.answer }}</div>
+                  </div>
+                  <div class="q-diff">
+                    <span class="badge" [class.badge-medium]="q.difficulty === 'Medium'"
+                      [class.badge-hard]="q.difficulty === 'Hard'">{{ q.difficulty }}</span>
+                  </div>
+                  <div class="q-actions">
+                    <button class="btn btn-xs btn-outline" (click)="editQuestion(q)">✏️</button>
+                    <button class="btn btn-xs btn-danger" (click)="removeQuestion(q.id)">✕</button>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="hint-box">
+        Add at least one category above to start adding questions.
+      </div>
+    }
+  }
+</div>

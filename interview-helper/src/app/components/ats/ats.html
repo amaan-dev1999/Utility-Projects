@@ -1,0 +1,271 @@
+<div class="ats">
+  <div class="ats-header">
+    <div>
+      <h1>📄 ATS Resume Screener</h1>
+      <p class="subtitle">Upload resumes to screen candidates for Java Full Stack Developer</p>
+    </div>
+    <div class="header-actions">
+      <div class="ai-toggle" (click)="toggleAiMode()" [class.active]="screeningMode === 'ai'" [class.loading]="aiModelStatus === 'loading'">
+        <div class="toggle-track">
+          <div class="toggle-thumb"></div>
+        </div>
+        <span class="toggle-label">
+          @if (aiModelStatus === 'loading') {
+            🧠 Loading AI Model... {{ aiModelProgress }}%
+          } @else if (screeningMode === 'ai') {
+            🧠 AI-Powered
+          } @else {
+            🔤 Keyword
+          }
+        </span>
+      </div>
+      <button class="btn btn-sm btn-outline" (click)="showCriteria = !showCriteria">
+        {{ showCriteria ? '✕ Close' : '⚙️ Screening Criteria' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- AI Model Loading Banner -->
+  @if (aiModelStatus === 'loading') {
+    <div class="ai-loading-banner">
+      <div class="processing-spinner"></div>
+      <div class="processing-info">
+        <div class="processing-text">🧠 Downloading AI model (first time only, ~30MB)...</div>
+        <div class="processing-bar">
+          <div class="processing-fill ai-fill" [style.width.%]="aiModelProgress"></div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (screeningMode === 'ai' && aiModelStatus === 'ready') {
+    <div class="ai-ready-badge">
+      <span>🧠</span> AI Model Ready — Semantic skill matching enabled
+    </div>
+  }
+
+  @if (aiModelStatus === 'error') {
+    <div class="ai-error-badge">
+      <span>⚠️</span> AI model failed to load. Using keyword mode.
+    </div>
+  }
+
+  <!-- Screening Criteria Panel -->
+  @if (showCriteria) {
+    <div class="criteria-panel">
+      <div class="criteria-section">
+        <h3>Required Skills (weighted 60%)</h3>
+        <div class="skill-tags">
+          @for (skill of criteria.requiredSkills; track skill; let i = $index) {
+            <span class="skill-tag required">{{ skill }}<button (click)="removeRequiredSkill(i)">✕</button></span>
+          }
+        </div>
+        <div class="skill-input">
+          <input type="text" [(ngModel)]="newRequiredSkill" placeholder="Add required skill..."
+            (keyup.enter)="addRequiredSkill()" />
+          <button class="btn btn-sm btn-primary" (click)="addRequiredSkill()">Add</button>
+        </div>
+      </div>
+
+      <div class="criteria-section">
+        <h3>Preferred Skills (weighted 20%)</h3>
+        <div class="skill-tags">
+          @for (skill of criteria.preferredSkills; track skill; let i = $index) {
+            <span class="skill-tag preferred">{{ skill }}<button (click)="removePreferredSkill(i)">✕</button></span>
+          }
+        </div>
+        <div class="skill-input">
+          <input type="text" [(ngModel)]="newPreferredSkill" placeholder="Add preferred skill..."
+            (keyup.enter)="addPreferredSkill()" />
+          <button class="btn btn-sm btn-primary" (click)="addPreferredSkill()">Add</button>
+        </div>
+      </div>
+
+      <div class="criteria-row">
+        <div class="criteria-field">
+          <label>Min Experience (years)</label>
+          <input type="number" [(ngModel)]="criteria.minExperienceYears" min="0" max="30" />
+        </div>
+        <div class="criteria-field">
+          <label>Pass Threshold (%)</label>
+          <input type="number" [(ngModel)]="criteria.passThreshold" min="0" max="100" />
+        </div>
+        <button class="btn btn-sm btn-outline" (click)="resetCriteria()">Reset Defaults</button>
+        @if (doneCount > 0) {
+          <button class="btn btn-sm btn-recheck" (click)="recheckAll()" [disabled]="processing">🔄 Recheck All ({{ doneCount }})</button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Upload Zone -->
+  <div class="upload-zone" (drop)="onFileDrop($event)" (dragover)="onDragOver($event)">
+    <div class="upload-icon">📁</div>
+    <p class="upload-title">Drop resumes here or click to browse</p>
+    <p class="upload-hint">Supports .pdf, .docx, .txt files or a .zip containing resumes</p>
+    <input type="file" multiple accept=".pdf,.docx,.txt,.zip" (change)="onFileSelect($event)" #fileInput />
+    <button class="btn btn-primary" (click)="fileInput.click()" [disabled]="processing">Browse Files</button>
+  </div>
+
+  <!-- Processing Banner -->
+  @if (processing) {
+    <div class="processing-banner">
+      <div class="processing-spinner"></div>
+      <div class="processing-info">
+        <div class="processing-text">Screening resumes... {{ processedCount }}/{{ processingCount }}</div>
+        <div class="processing-bar">
+          <div class="processing-fill" [style.width.%]="processingCount > 0 ? (processedCount / processingCount) * 100 : 0"></div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Results -->
+  @if (results.length > 0) {
+    <div class="results-section">
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat">
+          <span class="stat-num">{{ results.length }}</span>
+          <span class="stat-label">Total</span>
+        </div>
+        <div class="stat stat-pass">
+          <span class="stat-num">{{ passedCount }}</span>
+          <span class="stat-label">Passed</span>
+        </div>
+        <div class="stat stat-fail">
+          <span class="stat-num">{{ failedCount }}</span>
+          <span class="stat-label">Failed</span>
+        </div>
+        @if (processing) {
+          <div class="stat stat-proc">
+            <span class="stat-num">⏳</span>
+            <span class="stat-label">Processing...</span>
+          </div>
+        }
+      </div>
+
+      <!-- Filter & Actions -->
+      <div class="results-toolbar">
+        <div class="filter-tabs">
+          <button class="ftab" [class.active]="filterMode === 'all'" (click)="filterMode = 'all'">All</button>
+          <button class="ftab ftab-pass" [class.active]="filterMode === 'passed'" (click)="filterMode = 'passed'">✅ Passed</button>
+          <button class="ftab ftab-fail" [class.active]="filterMode === 'failed'" (click)="filterMode = 'failed'">❌ Failed</button>
+        </div>
+        <div class="results-actions">
+          @if (passedCount > 0) {
+            <button class="btn btn-success btn-sm" (click)="downloadPassedZip()">📦 Download Passed ({{ passedCount }})</button>
+          }
+          <button class="btn btn-outline btn-sm" (click)="clearAll()">Clear All</button>
+        </div>
+      </div>
+
+      <!-- Results List -->
+      <div class="results-list">
+        @for (r of filteredResults; track r.fileName; let i = $index) {
+          <div class="result-card" [class.passed]="r.passed" [class.failed]="!r.passed && r.status === 'done'" [class.error]="r.status === 'error'">
+            <div class="result-row" (click)="toggleExpand(i)">
+              <div class="result-status-icon">
+                @if (r.status === 'processing') { <span class="spinner">⏳</span> }
+                @else if (r.status === 'error') { <span class="error-icon">⚠️</span> }
+                @else if (r.passed) { <span class="pass-icon">✅</span> }
+                @else { <span class="fail-icon">❌</span> }
+              </div>
+              <div class="result-info">
+                <div class="result-name">
+                  {{ r.candidateName || r.fileName }}
+                  @if (r.manualOverride) {
+                    <span class="override-badge">MANUAL</span>
+                  }
+                  @if (r.screeningMode === 'ai') {
+                    <span class="ai-badge">🧠 AI</span>
+                  }
+                </div>
+                <div class="result-file">
+                  {{ r.fileName }}
+                  @if (r.textQuality === 'poor') {
+                    <span class="quality-badge quality-poor">⚠ Low text quality</span>
+                  } @else if (r.textQuality === 'unknown') {
+                    <span class="quality-badge quality-warn">⚠ Uncertain parse</span>
+                  }
+                </div>
+              </div>
+              @if (r.status === 'done') {
+                <div class="result-score" [ngClass]="getScoreClass(r.score)">{{ r.score }}%</div>
+                <div class="result-exp">
+                  {{ r.experienceYears !== null ? r.experienceYears + ' yrs' : 'N/A' }}
+                </div>
+                <div class="result-verdict" [class.pass]="r.passed" [class.fail]="!r.passed">
+                  {{ r.passed ? 'PASSED' : 'FAILED' }}
+                </div>
+              }
+              @if (r.status === 'error') {
+                <div class="result-error">{{ r.error }}</div>
+              }
+              <span class="expand-icon">{{ expandedIndex === i ? '▲' : '▼' }}</span>
+            </div>
+
+            @if (expandedIndex === i && r.status === 'done') {
+              <div class="result-detail">
+                @if (r.aiSummary) {
+                  <div class="ai-summary">
+                    <div class="ai-summary-header">
+                      <span>🧠 AI Analysis</span>
+                    </div>
+                    <p>{{ r.aiSummary }}</p>
+                  </div>
+                }
+                @if (r.textQuality !== 'good') {
+                  <div class="quality-alert">
+                    <span>⚠️</span>
+                    <div>
+                      <strong>{{ r.textQuality === 'poor' ? 'Low quality text extraction' : 'Text quality uncertain' }}</strong>
+                      <p>The resume may not have parsed correctly. Skills detection could be inaccurate. Use the override button to manually pass or fail this candidate.</p>
+                    </div>
+                  </div>
+                }
+                <div class="detail-grid">
+                  <div class="detail-box">
+                    <h4>✅ Required Skills Found ({{ r.skillsFound.length }}/{{ r.skillsFound.length + r.skillsMissing.length }})</h4>
+                    <div class="skill-tags">
+                      @for (s of r.skillsFound; track s) {
+                        <span class="skill-tag found">{{ s }}</span>
+                      }
+                      @for (s of r.skillsMissing; track s) {
+                        <span class="skill-tag missing">{{ s }}</span>
+                      }
+                    </div>
+                  </div>
+                  <div class="detail-box">
+                    <h4>⭐ Preferred Skills Found ({{ r.preferredFound.length }})</h4>
+                    <div class="skill-tags">
+                      @for (s of r.preferredFound; track s) {
+                        <span class="skill-tag found">{{ s }}</span>
+                      }
+                      @if (r.preferredFound.length === 0) {
+                        <span class="no-skills">None detected</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="detail-actions">
+                  <button class="btn btn-sm" [ngClass]="r.passed ? 'btn-fail-override' : 'btn-pass-override'" (click)="toggleOverride(r); $event.stopPropagation()">
+                    {{ r.passed ? '❌ Mark as Failed' : '✅ Mark as Passed' }}
+                  </button>
+                  <button class="btn btn-sm btn-outline" (click)="showExtractedText = showExtractedText === r ? null : r; $event.stopPropagation()">
+                    {{ showExtractedText === r ? '🔽 Hide Text' : '📝 View Extracted Text' }}
+                  </button>
+                </div>
+                @if (showExtractedText === r) {
+                  <div class="extracted-text-box">
+                    <pre>{{ r.extractedText }}</pre>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

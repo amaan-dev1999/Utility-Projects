@@ -1,0 +1,240 @@
+.report {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.03);
+  margin-bottom: 32px;
+}
+
+.summary-left {
+  h1 {
+    margin: 0 0 10px;
+    font-size: 28px;
+    color: #1f2937;
+    font-weight: 800;
+  }
+}
+
+.summary-meta {
+  display: flex;
+  gap: 20px;
+  color: #9ca3af;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.summary-right {
+  text-align: center;
+}
+
+.score-circle {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+
+  &.rec-good { background: #f0fdf4; border: 3px solid #22c55e; }
+  &.rec-avg { background: #fffbeb; border: 3px solid #f59e0b; }
+  &.rec-poor { background: #fef2f2; border: 3px solid #ef4444; }
+}
+
+.score-value {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.score-label {
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.recommendation {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 16px;
+  border-radius: 20px;
+  display: inline-block;
+  letter-spacing: 0.5px;
+
+  &.rec-good { background: #f0fdf4; color: #16a34a; }
+  &.rec-avg { background: #fffbeb; color: #d97706; }
+  &.rec-poor { background: #fef2f2; color: #dc2626; }
+}
+
+h2 {
+  font-size: 18px;
+  color: #1f2937;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.category-card {
+  background: #fff;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &:hover { transform: translateY(-1px); }
+}
+
+.cat-name {
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.cat-count {
+  font-size: 12px;
+  color: #6366f1;
+  font-weight: 600;
+  background: #eef2ff;
+  padding: 3px 12px;
+  border-radius: 12px;
+}
+
+.question-table {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  margin-bottom: 32px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.table-header, .table-row {
+  display: flex;
+  padding: 12px 18px;
+  font-size: 13px;
+  align-items: center;
+}
+
+.table-header {
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table-row {
+  border-bottom: 1px solid #f3f4f6;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: #f9fafb; }
+}
+
+.col-num { width: 40px; flex-shrink: 0; }
+.col-cat { width: 100px; flex-shrink: 0; font-weight: 600; }
+.col-q { flex: 1; padding-right: 12px; }
+.col-diff {
+  width: 80px;
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #d97706;
+
+  &.diff-hard { color: #dc2626; }
+}
+
+.overall-notes-section {
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 24px;
+  border: 1px solid #e5e7eb;
+
+  p {
+    color: #4b5563;
+    line-height: 1.7;
+    margin: 0;
+  }
+}
+
+.report-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  padding-top: 16px;
+}
+
+// Evaluation grid
+.eval-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.eval-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 18px 14px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.eval-card-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4b5563;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.eval-card-stars {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  margin-bottom: 8px;
+}
+
+.report-star {
+  font-size: 18px;
+  color: #d1d5db;
+
+  &.filled {
+    color: #f59e0b;
+  }
+}
+
+.eval-card-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1e1b4b;
+}
