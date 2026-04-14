@@ -1,0 +1,6 @@
+[submodule "interview-helper"]
+	path = interview-helper
+	url = https://github.com/amaan-dev1999/interview-helper.git
+[submodule "pdftool"]
+	path = pdftool
+	url = https://github.com/amaan-dev1999/pdftool.git

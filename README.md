@@ -12,8 +12,23 @@ An AI-powered interview helper application for managing candidates, screening re
 
 ## Getting Started
 
-Each project is self-contained with its own `package.json`. Navigate to the respective project folder and run:
+This repo uses **git submodules**. Each project is an independent repository that can be cloned separately.
 
+### Clone everything (all projects):
+```bash
+git clone --recurse-submodules https://github.com/amaan-dev1999/Utility-Projects.git
+```
+
+### Clone a single project independently:
+```bash
+# Just interview-helper
+git clone https://github.com/amaan-dev1999/interview-helper.git
+
+# Just pdftool
+git clone https://github.com/amaan-dev1999/pdftool.git
+```
+
+### After cloning, in any project folder:
 ```bash
 npm install
 ng serve
